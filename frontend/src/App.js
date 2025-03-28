@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Leaderboard from './componets/leaderboard';
 
 const App = () => {
   // State to hold user input for players and match results

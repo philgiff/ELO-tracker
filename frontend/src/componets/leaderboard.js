@@ -1,22 +1,55 @@
 import React, { useEffect, useState } from "react";
 
 const Leaderboard = () => {
-  const [players, setPlayers] = useState({});
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/leaderboard")
-      .then((response) => response.json())
-      .then((data) => setPlayers(data));
+    const fetchLeaderboard = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/leaderboard");
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setLeaderboard(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeaderboard();
   }, []);
+
+  if (loading) return <p>Loading leaderboard...</p>;
+  if (error) return <p>Error fetching leaderboard: {error}</p>;
 
   return (
     <div>
       <h2>Leaderboard</h2>
-      <ul>
-        {Object.entries(players).map(([player, rating]) => (
-          <li key={player}>{player}: {rating}</li>
-        ))}
-      </ul>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Rating</th>
+          </tr>
+        </thead>
+        <tbody>
+          {leaderboard.map((player, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>{player.name}</td>
+              <td>{player.rating}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
